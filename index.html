@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐢 AI 海龜影片偵探 (Sea Turtle Video Detectives)</title>
+  <style>
+    :root {
+      --primary: #006699;
+      --primary-hover: #004c73;
+      --secondary: #e6f2ff;
+      --accent: #2e7d32;
+      --bg: #f4f8fb;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --border: #d0dbe5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Print styling placeholder */
+    .print-only { display: none; }
+
+    header {
+      background: linear-gradient(135deg, #004c73, #006699);
+      color: white;
+      padding: 2rem 1rem 1.5rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    header h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+    header p { margin: 0 0 1rem; opacity: 0.9; font-size: 0.95rem; }
+
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      height: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      background-color: #4caf50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+    }
+
+    main {
+      max-width: 850px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .card-title {
+      color: var(--primary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"], textarea, select {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,102,153,0.15);
+    }
+
+    .checkbox-group, .radio-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.6rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .checkbox-label, .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .checkbox-label:hover, .radio-label:hover {
+      background: var(--secondary);
+    }
+
+    .tip-box {
+      background-color: #fff9e6;
+      border-left: 4px solid #ffc107;
+      padding: 0.8rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-top: 1.5rem;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.8rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--secondary);
+      color: var(--primary);
+    }
+
+    .cer-box {
+      background: #f8fafc;
+      border: 1px dashed var(--primary);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .cer-title {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 3rem 0;
+    }
+
+    .btn {
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background-color: #d0d0d0;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      header, .actions, .tip-box, button {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        margin-bottom: 1.5rem;
+      }
+
+      input[type="text"], textarea, select {
+        border: none;
+        border-bottom: 1px solid #000;
+        border-radius: 0;
+        background: transparent;
+        padding: 0.2rem;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🐢 AI 海龜影片偵探</h1>
+    <p>Sea Turtle Video Detectives 互動式學習單</p>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">完成進度：0%</div>
+  </header>
+
+  <main id="worksheet">
+    <!-- 學生基本資料 -->
+    <div class="card">
+      <div class="info-grid">
+        <div class="form-group">
+          <label>班級：</label>
+          <input type="text" id="className" placeholder="請輸入班級">
+        </div>
+        <div class="form-group">
+          <label>組別：</label>
+          <input type="text" id="groupNum" placeholder="請輸入組別">
+        </div>
+        <div class="form-group">
+          <label>日期：</label>
+          <input type="text" id="date" placeholder="YYYY/MM/DD">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>組員姓名：</label>
+        <input type="text" id="members" placeholder="請輸入全組組員姓名">
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="card">
+      <h2 class="card-title">STEP 1｜破綻偵查 Visual Investigation</h2>
+      <p><strong>🔍 任務一：找出可疑的地方</strong></p>
+      <p>請再次觀看影片後，仔細觀察畫面中的細節。</p>
+
+      <div class="form-group">
+        <label>1. 你在影片中觀察到哪些值得進一步查證的地方？（可複選）</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="海龜的身體構造或外觀"> 海龜的身體構造或外觀</label>
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="海龜的游泳動作"> 海龜的游泳動作</label>
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="海龜的嘴巴、眼睛或四肢"> 海龜的嘴巴、眼睛或四肢</label>
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="吸管或其他物品的位置"> 吸管或其他物品的位置</label>
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="水波、光影或背景變化"> 水波、光影或背景變化</label>
+          <label class="checkbox-label"><input type="checkbox" name="step1_q1" value="物體突然出現、消失或位置改變"> 物體突然出現、消失或位置改變</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>2. 請記錄你觀察到的一個可疑細節。</label>
+        <textarea id="step1_q2" rows="2" placeholder="我觀察到..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>3. 這個細節為什麼讓你產生疑問？</label>
+        <div class="radio-group">
+          <label class="radio-label"><input type="radio" name="step1_q3_reason" value="看起來不自然"> 看起來不自然</label>
+          <label class="radio-label"><input type="radio" name="step1_q3_reason" value="前後畫面不一致"> 前後畫面不一致</label>
+          <label class="radio-label"><input type="radio" name="step1_q3_reason" value="與我認識的真實世界不同"> 與我認識的真實世界不同</label>
+        </div>
+        <textarea id="step1_q3_text" rows="2" placeholder="我的理由："></textarea>
+      </div>
+
+      <div class="tip-box">
+        💡 <strong>小偵探提醒：</strong> 發現可疑細節只是調查的開始，找到視覺破綻不代表就能證明影片是 AI 生成的，真實影片也可能經過剪輯或特效處理。
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card">
+      <h2 class="card-title">STEP 2｜數位溯源 Digital Investigation</h2>
+      <p><strong>🕵️ 任務二：追蹤影片的來源</strong></p>
+      <p>請選擇影片中的一個關鍵畫面（如海龜特寫、吸管或背景），使用 Google Lens 或其他反向圖片搜尋工具進行搜尋。</p>
+
+      <div class="form-group">
+        <label>1. 我們使用的搜尋工具是：</label>
+        <input type="text" id="step2_q1" placeholder="例如：Google Lens">
+      </div>
+
+      <div class="form-group">
+        <label>2. 我們選擇搜尋的畫面是：</label>
+        <input type="text" id="step2_q2" placeholder="描寫選擇的截圖畫面內容">
+      </div>
+
+      <div class="form-group">
+        <label>3. 搜尋結果紀錄：</label>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>查證項目</th><th>搜尋結果</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>找到相似的圖片或影片嗎？</td>
+                <td>
+                  <label><input type="radio" name="s2_t1" value="有"> 有</label> &nbsp;
+                  <label><input type="radio" name="s2_t1" value="沒有"> 沒有</label>
+                </td>
+              </tr>
+              <tr>
+                <td>找到可能的原始發布平台嗎？</td>
+                <td>
+                  <label><input type="radio" name="s2_t2" value="有"> 有</label> &nbsp;
+                  <label><input type="radio" name="s2_t2" value="沒有"> 沒有</label>
+                </td>
+              </tr>
+              <tr>
+                <td>找到發布帳號或作者嗎？</td>
+                <td>
+                  <label><input type="radio" name="s2_t3" value="有"> 有</label> &nbsp;
+                  <label><input type="radio" name="s2_t3" value="沒有"> 沒有</label>
+                </td>
+              </tr>
+              <tr>
+                <td>找到發布日期或時間嗎？</td>
+                <td>
+                  <label><input type="radio" name="s2_t4" value="有"> 有</label> &nbsp;
+                  <label><input type="radio" name="s2_t4" value="沒有"> 沒有</label>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>4. 請記錄一個重要的搜尋結果：</label>
+        <input type="text" id="step2_q4_site" placeholder="網站、平台或帳號名稱">
+        <input type="text" id="step2_q4_title" placeholder="相關網址或搜尋結果標題" style="margin-top:0.4rem;">
+        <textarea id="step2_q4_detail" rows="2" placeholder="這項搜尋結果告訴我們什麼？" style="margin-top:0.4rem;"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>5. 目前能否確認影片的原始來源？</label>
+        <div class="radio-group">
+          <label class="radio-label"><input type="radio" name="step2_q5" value="可以，已找到相關來源及佐證"> 可以，已找到相關來源及佐證</label>
+          <label class="radio-label"><input type="radio" name="step2_q5" value="部分可以，但仍有資訊需要確認"> 部分可以，但仍有資訊需要確認</label>
+          <label class="radio-label"><input type="radio" name="step2_q5" value="暫時無法確認"> 暫時無法確認</label>
+        </div>
+        <textarea id="step2_q5_reason" rows="2" placeholder="我們的判斷依據："></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="card">
+      <h2 class="card-title">STEP 3｜知識對照 Fact Check</h2>
+      <p><strong>📚 任務三：用科學知識查證</strong></p>
+      <p>請使用可信資料來源（如海洋保育署、國立海洋生物博物館或事實查核機構），查證影片中的海龜是否符合真實生理構造與行為。</p>
+
+      <div class="form-group">
+        <label>1. 我們想查證的問題是：</label>
+        <textarea id="step3_q1" rows="2" placeholder="我們的查證問題："></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>2. 我們找到的資料來源：</label>
+        <input type="text" id="step3_q2_site" placeholder="網站或機構名稱">
+        <input type="text" id="step3_q2_title" placeholder="資料標題與網址" style="margin-top:0.4rem;">
+      </div>
+
+      <div class="form-group">
+        <label>3. 請記錄資料中的重要證據：</label>
+        <textarea id="step3_q3" rows="2" placeholder="網站資料指出..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>4. 將科學資料與影片進行比對：</label>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>比對項目</th><th>我們的判斷</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>影片中的海龜構造是否合理？</td>
+                <td>
+                  <label><input type="radio" name="s3_c1" value="符合"> 符合</label>
+                  <label><input type="radio" name="s3_c1" value="不符合"> 不符合</label>
+                  <label><input type="radio" name="s3_c1" value="無法判斷"> 無法判斷</label>
+                </td>
+              </tr>
+              <tr>
+                <td>海龜的游泳或動作是否合理？</td>
+                <td>
+                  <label><input type="radio" name="s3_c2" value="符合"> 符合</label>
+                  <label><input type="radio" name="s3_c2" value="不符合"> 不符合</label>
+                  <label><input type="radio" name="s3_c2" value="無法判斷"> 無法判斷</label>
+                </td>
+              </tr>
+              <tr>
+                <td>海龜的生態行為是否合理？</td>
+                <td>
+                  <label><input type="radio" name="s3_c3" value="符合"> 符合</label>
+                  <label><input type="radio" name="s3_c3" value="不符合"> 不符合</label>
+                  <label><input type="radio" name="s3_c3" value="無法判斷"> 無法判斷</label>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <textarea id="step3_q4_reason" rows="2" placeholder="我們的判斷依據：" style="margin-top:0.5rem;"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="card">
+      <h2 class="card-title">STEP 4｜邏輯論證 CER</h2>
+      <p><strong>🧠 任務四：提出有證據的結論</strong></p>
+      <p>請整合前面的調查結果，運用 CER 模型提出小組的最終結論。</p>
+
+      <div class="cer-box">
+        <div class="cer-title">C｜Claim 主張</div>
+        <div class="form-group">
+          <label>我們認為這支影片：</label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="cer_claim" value="可能為 AI 生成"> 可能為 AI 生成</label>
+            <label class="radio-label"><input type="radio" name="cer_claim" value="可能經過 AI 或其他方式加工"> 可能經過 AI 或其他方式加工</label>
+            <label class="radio-label"><input type="radio" name="cer_claim" value="可能是真實拍攝的影片"> 可能是真實拍攝的影片</label>
+            <label class="radio-label"><input type="radio" name="cer_claim" value="目前證據不足，無法判斷"> 目前證據不足，無法判斷</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cer-box">
+        <div class="cer-title">E｜Evidence 證據</div>
+        <div class="form-group">
+          <label>證據一（視覺觀察或來源調查）：</label>
+          <textarea id="cer_e1" rows="2" placeholder="請說明找到的視覺破綻或圖片搜尋結果"></textarea>
+        </div>
+        <div class="form-group">
+          <label>證據二（科學資料查證）：</label>
+          <textarea id="cer_e2" rows="2" placeholder="請說明找到的科學文獻或權威機構資料"></textarea>
+        </div>
+      </div>
+
+      <div class="cer-box">
+        <div class="cer-title">R｜Reasoning 推論</div>
+        <div class="form-group">
+          <label>請解釋以上證據如何支持你們的主張：</label>
+          <textarea id="cer_reasoning" rows="3" placeholder="我們的最終結論與推論邏輯..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="clearData()">清空重新填寫</button>
+      <button class="btn btn-primary" onclick="prepareAndPrint()">🖨️ 列印 / 儲存為 PDF</button>
+    </div>
+  </main>
+
+  <script>
+    // 自動計算完成進度
+    function updateProgress() {
+      const inputs = document.querySelectorAll('input[type="text"], textarea');
+      const radioNames = new Set([...document.querySelectorAll('input[type="radio"]')].map(r => r.name));
+      
+      let filled = 0;
+      let total = inputs.length + radioNames.size;
+
+      inputs.forEach(i => { if (i.value.trim() !== '') filled++; });
+      radioNames.forEach(name => {
+        if (document.querySelector(`input[name="${name}"]:checked`)) filled++;
+      });
+
+      const percentage = Math.round((filled / total) * 100);
+      document.getElementById('progressBar').style.width = percentage + '%';
+      document.getElementById('progressText').innerText = `完成進度：${percentage}%`;
+    }
+
+    // 列印處理
+    function prepareAndPrint() {
+      window.print();
+    }
+
+    // 本地備份與讀取
+    function saveData() {
+      const data = {};
+      document.querySelectorAll('input[type="text"], textarea').forEach(i => data[i.id] = i.value);
+      document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(i => data[i.name + '_' + i.value] = true);
+      localStorage.setItem('turtle_detective_data', JSON.stringify(data));
+      updateProgress();
+    }
+
+    function clearData() {
+      if (confirm('確定要清空所有已填寫的內容嗎？')) {
+        localStorage.removeItem('turtle_detective_data');
+        location.reload();
+      }
+    }
+
+    document.addEventListener('input', saveData);
+    document.addEventListener('change', saveData);
+  </script>
+</body>
+</html>
